@@ -130,7 +130,13 @@ bars_weekdays = (
     .encode(
         alt.X("weekday:O", title=None, sort=list(days_portuguese.values())),  # Ordenação manual dos dias
         alt.Y("sum(count):Q", title="Contagem"),  # Usando 'sum(count)' para calcular a soma de ocorrências
-        alt.Color("sum(count):Q", scale=alt.Scale(scheme='reds'), legend=None)
+        alt.Color("sum(count):Q",
+                  scale=alt.Scale(scheme='reds'),
+                  legend=None,
+        tooltip=[
+        alt.Tooltip("weekday:O", title="Dia da Semana"),
+        alt.Tooltip("sum(count):Q", title="Total"),
+    ],)
     )
 )
 
