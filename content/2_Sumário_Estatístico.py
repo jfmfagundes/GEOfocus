@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-import locale
+#import locale
 import altair as alt
 import geo_functions as gf
 
@@ -21,7 +21,8 @@ df = st.session_state.df
 st.header("Resumo dos Dados:")
 col1, col2, col3, col4 = st.columns([1.5,2.5,2,2])
 col1.metric("**Quantidade IDs Únicos:**", value=df['registrationID'].unique().size)
-col2.metric("**Tamanho do Dataset:**", value=f'{locale.format_string("%d", len(df), grouping=True)} linhas')
+#col2.metric("**Tamanho do Dataset:**", value=f'{locale.format_string("%d", len(df), grouping=True)} linhas')
+col2.metric("**Tamanho do Dataset:**", value=f'{len(df)} linhas')
 col3.metric("**Data Inicial:**", value=df['timestamp'].min().strftime('%d-%m-%Y'))
 col4.metric("**Data Final:**", value=df['timestamp'].max().strftime('%d-%m-%Y'))
 st.divider()

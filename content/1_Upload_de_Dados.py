@@ -1,11 +1,11 @@
 import streamlit as st
 import geo_functions as gf
-import locale
+#import locale
 
 
 # Definindo a página
 st.set_page_config(page_title="Upload de Dados", layout="wide")
-locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
+#locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
 st.title("Upload do arquivo do Tracker:")
 st.markdown("_Versão Beta_")
 
@@ -37,7 +37,8 @@ if 'df' not in st.session_state and uploaded_files:
     st.subheader("Sumário dos Dados:")
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("**Quantidade IDs Únicos:**", value=df['registrationID'].unique().size)
-    col2.metric("**Tamanho do Dataset:**", value=f'{locale.format_string("%d", len(df), grouping=True)} linhas')
+    #col2.metric("**Tamanho do Dataset:**", value=f'{locale.format_string("%d", len(df), grouping=True)} linhas')
+    col2.metric("**Tamanho do Dataset:**", value=f'{len(df)} linhas')
     col3.metric("**Data Inicial:**", value=df['timestamp'].min().strftime('%d-%m-%Y'))
     col4.metric("**Data Final:**", value=df['timestamp'].max().strftime('%d-%m-%Y'))
     st.divider()
@@ -50,7 +51,8 @@ elif 'df' in st.session_state:
     st.subheader("Sumário dos Dados:")
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("**Quantidade IDs Únicos:**", value=df['registrationID'].unique().size)
-    col2.metric("**Tamanho do Dataset:**", value=f'{locale.format_string("%d", len(df), grouping=True)} linhas')
+    #col2.metric("**Tamanho do Dataset:**", value=f'{locale.format_string("%d", len(df), grouping=True)} linhas')
+    col2.metric("**Tamanho do Dataset:**", value=f'{len(df)} linhas')
     col3.metric("**Data Inicial:**", value=df['timestamp'].min().strftime('%d-%m-%Y'))
     col4.metric("**Data Final:**", value=df['timestamp'].max().strftime('%d-%m-%Y'))
     st.divider()
