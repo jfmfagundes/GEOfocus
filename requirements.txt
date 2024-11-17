@@ -5,7 +5,6 @@ geopandas
 leafmap
 owslib
 altair
-io
 pydeck
 locale
 h3
