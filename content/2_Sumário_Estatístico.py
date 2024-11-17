@@ -132,11 +132,11 @@ bars_weekdays = (
         alt.Y("sum(count):Q", title="Contagem"),  # Usando 'sum(count)' para calcular a soma de ocorrências
         alt.Color("sum(count):Q",
                   scale=alt.Scale(scheme='reds'),
-                  legend=None,
+                  legend=None,),
         tooltip=[
         alt.Tooltip("weekday:O", title="Dia da Semana:"),
         alt.Tooltip("sum(count):Q", title="Total:"),
-    ],)
+    ],
     )
 )
 
