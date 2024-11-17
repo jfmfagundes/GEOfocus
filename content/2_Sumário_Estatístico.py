@@ -147,7 +147,11 @@ bars_hours = (
     .encode(
         alt.X("hour:O", title=None).axis(labelAngle=0),
         alt.Y("sum(count):Q", title=None),
-        alt.Color("sum(count):Q", scale=alt.Scale(scheme='reds'), legend=None)
+        alt.Color("sum(count):Q", scale=alt.Scale(scheme='reds'), legend=None,
+        tooltip=[
+        alt.Tooltip("hour:O", title="Hora:"),
+        alt.Tooltip("sum(count):Q", title="Total:"),
+    ],)
     )
 )
 
