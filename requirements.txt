@@ -6,6 +6,4 @@ leafmap
 owslib
 altair
 pydeck
-locale
 h3
-time
