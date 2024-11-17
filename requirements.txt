@@ -5,8 +5,6 @@ geopandas
 leafmap
 owslib
 altair
-json
-os
 io
 pydeck
 locale
