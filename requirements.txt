@@ -7,4 +7,3 @@ owslib
 altair
 pydeck
 h3
-time
