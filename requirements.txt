@@ -1,1 +1,14 @@
 streamlit
+numpy
+pandas
+geopandas
+leafmap
+owslib
+altair
+json
+os
+io
+pydeck
+locale
+h3
+time
