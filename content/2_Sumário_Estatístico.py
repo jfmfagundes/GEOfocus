@@ -134,8 +134,8 @@ bars_weekdays = (
                   scale=alt.Scale(scheme='reds'),
                   legend=None,
         tooltip=[
-        alt.Tooltip("weekday:O", title="Dia da Semana"),
-        alt.Tooltip("sum(count):Q", title="Total"),
+        alt.Tooltip("weekday:O", title="Dia da Semana:"),
+        alt.Tooltip("sum(count):Q", title="Total:"),
     ],)
     )
 )
