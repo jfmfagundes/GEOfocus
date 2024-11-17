@@ -6,7 +6,7 @@ import geo_functions as gf
 # Definindo a página
 st.set_page_config(page_title="Upload de Dados", layout="wide")
 #locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
-st.title("Upload do arquivo do Tracker:")
+st.title("Upload do(s) arquivo(s):")
 st.markdown("_Versão Beta_")
 
 #Código necessário para desativar o menu interativo de download do st.dataframe
