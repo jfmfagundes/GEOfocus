@@ -6,6 +6,8 @@ import json
 from io import BytesIO
 import h3
 import pydeck as pdk
+from geopy.geocoders import Nominatim
+from sklearn.cluster import DBSCAN
 
 # Função para processar os JSON gerados pelo Infinity
 @st.cache_data(ttl='1d')
