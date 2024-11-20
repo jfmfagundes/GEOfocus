@@ -133,7 +133,6 @@ def groupby_h3(df, h3_grid=10):
     
     return grouped_h3.sort_values(by='count', ascending=False)
 
-@st.cache_data(ttl='1d')
 def heatmap_render(df, map="light", opacity=0.5):
     mapbox_styles = {
     "Light": "mapbox://styles/mapbox/light-v10",
@@ -186,3 +185,97 @@ def heatmap_render(df, map="light", opacity=0.5):
 
     # Exibir o mapa no Streamlit
     return deck
+
+def to_gdf(df):
+    coord_columns = {
+        'latitude': 'longitude',
+        'lat': 'lng'
+    }
+    lat_col = lng_col = None
+    for lat, lng in coord_columns.items():
+        if lat.lower() in df.columns.str.lower() and lng.lower() in df.columns.str.lower():
+            lat_col = df.columns[df.columns.str.lower() == lat.lower()][0]
+            lng_col = df.columns[df.columns.str.lower() == lng.lower()][0]
+            break
+    if lat_col is None or lng_col is None:
+        raise ValueError("O DataFrame não contém as colunas de coordenadas esperadas.")
+    gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df[lng_col], df[lat_col]))
+    gdf.set_crs('EPSG:4326', allow_override=True, inplace=True)
+    return gdf.to_crs('EPSG:3857')
+
+def apply_dbscan(gdf, eps, min_samples):
+    """
+    Aplica o algoritmo DBSCAN no GeoDataFrame e calcula os centroides dos clusters.
+    
+    Parâmetros:
+    gdf (GeoDataFrame): O GeoDataFrame contendo os dados geoespaciais.
+    eps (float): Distância máxima entre dois pontos para que sejam considerados parte do mesmo cluster.
+    min_samples (int): Número mínimo de pontos necessários para formar um cluster.
+    
+    Retorna:
+    GeoDataFrame: O GeoDataFrame com os clusters atribuídos e geometria dos centroides.
+    """
+    
+    # Verificar se o GeoDataFrame está no CRS correto (EPSG:3857), e se não, converter
+    if gdf.crs != 'EPSG:3857':
+        gdf = gdf.to_crs(epsg=3857)
+    
+    # Inicializa a coluna de cluster com -1 (ruído)
+    gdf['cluster'] = -1
+    cluster_id = 0  
+
+    # Agrupa por 'registrationID' e aplica DBSCAN
+    for reg_id, group in gdf.groupby('registrationID'):
+        coords = np.column_stack((group.geometry.x, group.geometry.y))
+        db = DBSCAN(eps=eps, min_samples=min_samples).fit(coords)
+        
+        # Atualiza a coluna 'cluster' apenas para os grupos processados
+        for label in set(db.labels_):
+            if label != -1:  # Ignora ruídos
+                gdf.loc[group.index[db.labels_ == label], 'cluster'] = cluster_id
+                cluster_id += 1  # Incrementa o ID do cluster
+
+    # Filtra os clusters que possuem pelo menos um ponto (exclui os ruídos)
+    gdf_clusterizado = gdf[gdf['cluster'] != -1]
+    
+    # Conta o número de pontos por cluster (por 'registrationID' e 'cluster')
+    contagem_pontos_cluster = gdf_clusterizado.groupby(['registrationID', 'cluster']).size().reset_index(name='points')
+
+    # Calcula os centroides dos clusters (geometria média)
+    centroides = gdf_clusterizado.groupby(['registrationID', 'cluster'])['geometry'].apply(lambda x: x.unary_union.centroid).reset_index()
+    centroides.columns = ['registrationID', 'cluster', 'geometry']
+    centroides = centroides.set_crs('EPSG:3857', allow_override=True, inplace=True)
+
+    # Merge para incluir a contagem de pontos
+    centroides = centroides.merge(contagem_pontos_cluster, on=['registrationID', 'cluster'], how='inner')
+
+    # Cria um buffer de raio 'eps' metros em torno do centroide do cluster
+    centroides['buffer'] = centroides.geometry.buffer(250)
+    centroides = centroides.set_geometry("buffer")
+
+    # Converte para o CRS original (EPSG:4326) antes de retornar
+    gdf_clusterizado = gdf_clusterizado.to_crs(epsg=4326)
+    centroides = centroides.to_crs(epsg=4326)
+    centroides = centroides.set_geometry("geometry")
+    centroides = centroides.to_crs(epsg=4326)
+
+  
+    return gdf_clusterizado, centroides
+
+# Função para gerar cores distintas
+def gen_colors(n):
+    """
+    Gera n cores distintas no formato RGB.
+    Cada cor será uma combinação única de Red, Green e Blue.
+    """
+    colors = []
+    step = 255 // n  # Dividimos o intervalo 0-255 em n partes
+
+    for i in range(n):
+        # A cada i, a cor muda nas três componentes RGB
+        red = (i * step) % 255
+        green = ((i * 2 * step) + 85) % 255  # Deslocamento para garantir uma variação mais ampla
+        blue = ((i * 3 * step) + 170) % 255  # Outro deslocamento
+        colors.append([red, green, blue])  # Adiciona a cor gerada à lista
+    
+    return colors
